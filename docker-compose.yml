@@ -28,13 +28,10 @@ services:
       N8N_BASIC_AUTH_ACTIVE: "true"
       N8N_BASIC_AUTH_USER: "admin"
       N8N_BASIC_AUTH_PASSWORD: "admin123"
-
       N8N_HOST: "${N8N_HOST}"
       N8N_PORT: "5678"
       N8N_PROTOCOL: "${N8N_PROTOCOL}"
-
       GENERIC_TIMEZONE: "America/Guatemala"
-
       N8N_EDITOR_BASE_URL: "${N8N_BASE_URL}"
       WEBHOOK_URL: "${N8N_BASE_URL}"
     volumes:
@@ -52,11 +49,25 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: "postgresql+psycopg://bot:botpass@postgres:5432/botdb"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
     depends_on:
       postgres:
         condition: service_healthy
+      ollama:
+        condition: service_started
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bot_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
     restart: unless-stopped
 
 volumes:
   pgdata:
   n8n_data:
+  ollama_data:
